@@ -39,17 +39,6 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       
       if(productInCart){
         updateProductAmount({productId, amount: productInCart.amount +1})
-        // if(data.amount <= productInCart?.amount){
-        //   toast.error("Quantidade solicitada fora de estoque")
-        //   return
-        // }
-
-        // const cartUpdated = cart.map(item => {
-        //   return item.id === productId ? {...item, amount: item.amount+= 1} : {...item};
-
-        // })
-        // localStorage.setItem("@RocketShoes:cart", JSON.stringify(cartUpdated));
-        // return setCart(cartUpdated)
 
       } else {
           const { data: product } = await api.get(`/products/${productId}`); 
@@ -69,15 +58,13 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       const productInCart = cart.find(product => product.id === productId);
 
       if(productInCart === undefined) {
-        toast.error('Erro na remoção do produto');
-        return
-      }
+        throw new Error();
+      };
 
-      const updatedCartWithoutRemovedProduct = cart.filter(item => item.id !== productId)
+      const updatedCartWithoutRemovedProduct = cart.filter(item => item.id !== productId);
       
-      setCart(updatedCartWithoutRemovedProduct)
-      localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCartWithoutRemovedProduct))
-
+      setCart(updatedCartWithoutRemovedProduct);
+      localStorage.setItem("@RocketShoes:cart", JSON.stringify(updatedCartWithoutRemovedProduct));
 
     } catch {
       toast.error('Erro na remoção do produto');
@@ -94,24 +81,12 @@ export function CartProvider({ children }: CartProviderProps): JSX.Element {
       }
       
       const {data} = await api.get(`/stock/${productId}`);
-      
       const stockAmount = data.amount;
 
       if(amount > stockAmount){
         toast.error('Quantidade solicitada fora de estoque');
         return;
       }
-
-      const productAlreadyExists = cart.find(item => item.id === productId);
-
-      if(productAlreadyExists === undefined){
-        throw new Error()
-      }
-
-      if(data.amount <= productAlreadyExists?.amount){
-        throw new Error()
-      };
-      
 
       const cartUpdated = cart.map(item => {
         return item.id === productId ? {...item, amount} : {...item};
